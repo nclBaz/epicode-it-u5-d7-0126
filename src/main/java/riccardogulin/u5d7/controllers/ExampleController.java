@@ -1,6 +1,10 @@
 package riccardogulin.u5d7.controllers;
 
 import org.springframework.web.bind.annotation.*;
+import riccardogulin.u5d7.payloads.NewProductPayload;
+import riccardogulin.u5d7.payloads.NewProductResponsePayload;
+
+import java.time.LocalDateTime;
 
 @RestController // @RestController != @Controller
 // MEGLIO USARE @RESTCONTROLLER!
@@ -50,6 +54,39 @@ public class ExampleController {
 	// Quindi o faccio dei controlli con if() oppure posso sfruttare i defaultValue per i parametri in maniera da non avere mai null
 	public String queryParamsExample(@RequestParam(defaultValue = "nome_default") String name, @RequestParam(required = false) Integer age) {
 		return "name: " + name.toUpperCase() + ", age: " + age;
+	}
+
+	// ***************************************************** PATH PARAMETERS ***********************************************************************
+
+	@GetMapping("/pathParamExample/{param}")
+	// GET http://localhost:3001/examples/pathParamExample/1234
+	// GET http://localhost:3001/examples/pathParamExample/1236
+	// GET http://localhost:3001/examples/pathParamExample/1235
+	// GET http://localhost:3001/examples/pathParamExample/1239
+
+	// N.B. Il nome del parametro specificato nelle tonde DEVE essere UGUALE al nome del segnaposto tra le graffe nell'URL
+	public String pathParamExample(@PathVariable String param) {
+		return "Il parametro inserito è: " + param;
+	}
+
+	// ***************************************************** REQUEST BODY ***********************************************************************
+
+	@PostMapping("/payloadExample")
+	public NewProductResponsePayload payloadExample(@RequestBody NewProductPayload payload) {
+		// Quando abbiamo bisogno di un PAYLOAD, una cosa fondamentale da fare è crearsi una classe
+		// apposita che definisca il TIPO del payload. Cioè con questa classe andiamo a definire
+		// quali sono gli attributi che arriveranno in formato JSON e che quindi Spring convertirà
+		// automaticamente in oggetto di quel tipo
+		System.out.println(payload.getName());
+		System.out.println(payload.getPrice());
+		System.out.println(payload.getDescription());
+		return new NewProductResponsePayload(1, payload.getName(), payload.getPrice(), payload.getDescription(), LocalDateTime.now());
+		// Anche per quanto riguarda il payload della RISPOSTA posso definire una classe che rappresenti
+		// come deve essere fatto quel payload.
+		// Se uso STRING mi tornerà un payload in formato testuale (plain/text), se invece voglio un JSON (SEMPRE)
+		// allora dovremo definire una classe AD HOC solo per quello
+		// Spring poi convertirà l'oggetto messo nel return in JSON e lo inserisce nel payload della risposta
+
 	}
 
 }
